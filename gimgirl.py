@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 #Base.metadata.drop_all(engine)
 #sql 연결
 #엔진 생성성
-engine = create_engine('sqlite:///gimgirl.db')
+engine = create_engine('sqlite:///gimgirl1.db')
 
 Base = declarative_base()
 
