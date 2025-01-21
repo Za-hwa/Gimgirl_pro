@@ -1,7 +1,7 @@
 import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, text
 from sqlalchemy.orm import declarative_base, sessionmaker
-Base.metadata.drop_all(engine)
+#Base.metadata.drop_all(engine)
 #sql 연결
 #엔진 생성성
 engine = create_engine('sqlite:///gimgirl.db')
