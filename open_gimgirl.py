@@ -11,7 +11,7 @@ def main():
         st.image('fund.png')
                  
         if st.button("학생용"):
-            st.experimental_rerun(https://gimgirlpro-rpowqmyhh48fut3mpcoqpm.streamlit.app)
+            st.experimental_rerun('https://gimgirlpro-rpowqmyhh48fut3mpcoqpm.streamlit.app')
         st.button("관리자용")
 
   
