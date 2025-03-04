@@ -8,11 +8,7 @@ def main():
     col1,col2,col3= st.colums([1,1,1])
 
     with col2:
-        st.write("
-        
-                 
-                 
-                 ")
+        st.image('fund.png')
                  
         if st.button("학생용"):
             streamlit run gimgirl.py
