@@ -88,7 +88,7 @@ def main():
                     session.query(Gimgirl).filter(Gimgirl.name == "예제2").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
 
-                with st.mode("예제2 완료창):
+                with st.mode("예제2 완료창"):
                     st.write("예제 2 완료되었습니다.")
                 #st.empty() # 폼 제출 후 페이지 새로 고침
 
