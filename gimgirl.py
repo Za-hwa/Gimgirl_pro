@@ -57,9 +57,7 @@ def main():
                     session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
 
-                with st.expander("예제1 제출되었습니다", expanded=True):
-                    st.write("제출이 완료되었습니다.")
-                    st.button("닫기", on_click=lambda: st.experimental_rerun())
+                st.popup("제출되었습니다")
         
 
 
