@@ -124,7 +124,7 @@ def main():
                             )
     
                             session.commit()
-                        st.experimental_rerun()
+                        st.empty()
 
 
 if __name__ == '__main__':
