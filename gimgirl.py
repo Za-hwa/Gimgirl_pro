@@ -57,7 +57,8 @@ def main():
                     session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
 
-                st.toast("예제1 제출되었습니다")
+                with st.modal("예제1 제출되었습니다"):
+                    st.write("예제1 제출되었습니다.")
         
 
 
