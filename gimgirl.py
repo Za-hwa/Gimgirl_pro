@@ -87,8 +87,10 @@ def main():
                 elif donation == 30:
                     session.query(Gimgirl).filter(Gimgirl.name == "예제2").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
-                
-                st.empty() # 폼 제출 후 페이지 새로 고침
+
+                with st.mode("예제2 완료창):
+                    st.write("예제 2 완료되었습니다.")
+                #st.empty() # 폼 제출 후 페이지 새로 고침
 
     # 관리자용 페이지
     if page == "관리자용":
