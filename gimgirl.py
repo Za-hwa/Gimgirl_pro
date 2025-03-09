@@ -87,6 +87,9 @@ def main():
                 elif donation == 30:
                     session.query(Gimgirl).filter(Gimgirl.name == "예제2").update({Gimgirl.tre: Gimgirl.tre + 1})
 
+                with st.expander("예제2 제출완료"):
+                    st.write("제출완료 되었습니다.")
+
                 session.commit()
                 st.experimental_rerun() # 폼 제출 후 페이지 새로 고침
 
