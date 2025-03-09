@@ -103,6 +103,7 @@ def main():
 
                     if submit_button:
                         st.experimental_rerun()
+                        st.empty()
                         if donation == 10:
                             session.query(Gimgirl).filter(Gimgirl.name == "예제2").update(
                                 {Gimgirl.ten: Gimgirl.ten+ 1}
