@@ -125,6 +125,36 @@ def main():
     
                             session.commit()
                         st.empty()
+                        
+    if page == "관리자용":
+        
+        if st.button("예제1 총합계산"):
+            password1 = st.text_input("비번 입력",type="password")
+            
+            if password1 = "2345":
+                # 예제1의 기부 금액을 가져와서 총합 계산
+                ex01 = session.query(Gimgirl).filter(Gimgirl.name == "예제1").first()
+                ten1 = ex01.ten
+                twe1 = ex01.twe
+                tre1 = ex01.tre
+
+                total = ten1 * 10 + twe1 * 20 + tre1 * 30
+                st.write(f"{total}만원")
+                st.write(f"ten: {ten1} twe: {twe1} tre: {tre1}")
+
+        if st.button("예제2 총합계산"):
+            password2 = st.text_input("비번 입력",type="password")
+            
+            if password2 = "2345":
+                # 예제1의 기부 금액을 가져와서 총합 계산
+                ex02 = session.query(Gimgirl).filter(Gimgirl.name == "예제2").first()
+                ten2 = ex02.ten
+                twe2 = ex02.twe
+                tre2 = ex02.tre
+
+                total = ten2 * 10 + twe2 * 20 + tre2 * 30
+                st.write(f"{total}만원")
+                st.write(f"ten: {ten2} twe: {twe2} tre: {tre2}")
 
 
 if __name__ == '__main__':
