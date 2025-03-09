@@ -90,40 +90,41 @@ def main():
 
 
         if page =="예제2":
-            col1, col2, col3 = st.columns([1, 3, 1])
+                col1, col2, col3 = st.columns([1, 3, 1])
 
-            with col2:
+                with col2:
             # 이미지 클릭 시 부가 설명이 나오도록
-                st.image('fund.png')
+                    st.image('fund.png')
 
             # st.form을 사용하여 10, 20, 30 선택지 제공
-                with st.form(key='funding_form2'):
-                    donation = st.radio("질문:", [10, 20, 30], index=0)
-                    submit_button = st.form_submit_button(label="제출하기")
+                    with st.form(key='funding_form2'):
+                        donation = st.radio("질문:", [10, 20, 30], index=0)
+                        submit_button = st.form_submit_button(label="제출하기")
 
-                    if submit_button:
-                        st.experimental_rerun()
-                        st.empty()
-                        if donation == 10:
-                            session.query(Gimgirl).filter(Gimgirl.name == "예제2").update(
-                                {Gimgirl.ten: Gimgirl.ten+ 1}
-                            )
+                        if submit_button:
+                            
+                            
+                            if donation == 10:
+                                session.query(Gimgirl).filter(Gimgirl.name == "예제2").update(
+                                    {Gimgirl.ten: Gimgirl.ten+ 1}
+                                )
 
-                            session.commit()
+                                session.commit()
     
-                        elif donation == 20:
-                            session.query(Gimgirl).filter(Gimgirl.name == "예제1").update(
-                                {Gimgirl.twe: Gimgirl.twe+ 1}
-                            )
+                            elif donation == 20:
+                                session.query(Gimgirl).filter(Gimgirl.name == "예제1").update(
+                                    {Gimgirl.twe: Gimgirl.twe+ 1}
+                                )
 
-                            session.commit()
+                                session.commit()
 
-                        elif donation == 30:
-                            session.query(Gimgirl).filter(Gimgirl.name == "예제1").update(
-                                {Gimgirl.tre: Gimgirl.tre+ 1}
-                            )
+                            elif donation == 30:
+                                session.query(Gimgirl).filter(Gimgirl.name == "예제1").update(
+                                    {Gimgirl.tre: Gimgirl.tre+ 1}
+                                )
     
-                            session.commit()
+                                session.commit()
+                            st.experimental_rerun()
 
 
 if __name__ == '__main__':
