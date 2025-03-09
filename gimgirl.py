@@ -32,9 +32,8 @@ if session.query(Gimgirl).count() == 0:
     session.commit()
 
 def main():
-    st.title("김해여고 펀딩 사이트")
     st.header("2025 김해여고 펀딩 사이트")
-    st.markdown("===")
+    #st.markdown("===")
 
     page = st.selectbox("페이지를 선택하세요", ["예제1", "예제2", "관리자용"])
 
@@ -46,15 +45,15 @@ def main():
             st.image('fund.png')
 
         with st.form(key='funding_form1'):
-            donation = st.radio("질문:", [10, 20, 30], index=0)
+            donation = st.radio("펀딩을 얼마할 지 선택해주세요", ["10만원", "20만원", "30만원"], index=0)
             submit_button = st.form_submit_button(label="제출하기")
 
             if submit_button:
-                if donation == 10:
+                if donation == "10만원":
                     session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.ten: Gimgirl.ten + 1})
-                elif donation == 20:
+                elif donation == "20만원":
                     session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.twe: Gimgirl.twe + 1})
-                elif donation == 30:
+                elif donation == "30만원":
                     session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
 
@@ -70,15 +69,15 @@ def main():
             st.image('fund.png')
 
         with st.form(key='funding_form2'):
-            donation = st.radio("질문:", [10, 20, 30], index=0)
+            donation = st.radio("펀딩을 얼마할 지 선택해주세요", ["10만원","20만원", "30만원"], index=0)
             submit_button = st.form_submit_button(label="제출하기")
 
             if submit_button:
-                if donation == 10:
+                if donation == "10만원":
                     session.query(Gimgirl).filter(Gimgirl.name == "예제2").update({Gimgirl.ten: Gimgirl.ten + 1})
-                elif donation == 20:
+                elif donation == "20만원":
                     session.query(Gimgirl).filter(Gimgirl.name == "예제2").update({Gimgirl.twe: Gimgirl.twe + 1})
-                elif donation == 30:
+                elif donation == "30만원":
                     session.query(Gimgirl).filter(Gimgirl.name == "예제2").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
 
