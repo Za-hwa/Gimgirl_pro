@@ -143,7 +143,7 @@ def main():
                 st.write(f"ten: {ten1} twe: {twe1} tre: {tre1}")
 
         if st.button("예제2 총합계산"):
-            password2 = st.text_input("비번 입력",type="password")
+            password2 = st.text_input("비번 입력")
             
             if password2 == "2345":
                 # 예제1의 기부 금액을 가져와서 총합 계산
