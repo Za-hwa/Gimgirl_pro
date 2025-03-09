@@ -131,7 +131,7 @@ def main():
         if st.button("예제1 총합계산"):
             password1 = st.text_input("비번 입력",type="password")
             
-            if password1 = "2345":
+            if password1 == "2345":
                 # 예제1의 기부 금액을 가져와서 총합 계산
                 ex01 = session.query(Gimgirl).filter(Gimgirl.name == "예제1").first()
                 ten1 = ex01.ten
@@ -145,7 +145,7 @@ def main():
         if st.button("예제2 총합계산"):
             password2 = st.text_input("비번 입력",type="password")
             
-            if password2 = "2345":
+            if password2 == "2345":
                 # 예제1의 기부 금액을 가져와서 총합 계산
                 ex02 = session.query(Gimgirl).filter(Gimgirl.name == "예제2").first()
                 ten2 = ex02.ten
