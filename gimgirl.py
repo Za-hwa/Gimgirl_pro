@@ -44,29 +44,23 @@ def main():
 
         with col2:
             st.image('fund.png')
-            st.write("예제 글입니다.")
-            col21, col22, col23 = st.columns(3)
 
-        with col21:
-            if st.button("10만원"):
-                session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.ten: Gimgirl.ten + 1})
+        with st.form(key='funding_form1'):
+            donation = st.radio("질문:", [10, 20, 30], index=0)
+            submit_button = st.form_submit_button(label="제출하기")
+
+            if submit_button:
+                if donation == 10:
+                    session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.ten: Gimgirl.ten + 1})
+                elif donation == 20:
+                    session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.twe: Gimgirl.twe + 1})
+                elif donation == 30:
+                    session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.tre: Gimgirl.tre + 1})
                 session.commit()
 
-        with col22:
-            if st.button("20만원"):
-                session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.twe: Gimgirl.twe + 1})
-                session.commit()
+                st.toast("예제1 제출되었습니다")
+        
 
-        with col23:
-            if st.button("30만원"):
-                session.query(Gimgirl).filter(Gimgirl.name == "예제1").update({Gimgirl.tre: Gimgirl.tre + 1})
-                session.commit()
-
-        if st.button("예제1 총합계산"):
-            ex01 = session.query(Gimgirl).filter(Gimgirl.name == "예제1").first()
-            total = ex01.ten * 10 + ex01.twe * 20 + ex01.tre * 30
-            st.write(f"{total}만원")
-            st.write(f"ten: {ex01.ten} twe: {ex01.twe} tre: {ex01.tre}")
 
     # 예제2 페이지
     if page == "예제2":
