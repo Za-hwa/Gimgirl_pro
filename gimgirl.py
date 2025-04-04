@@ -84,19 +84,84 @@ def login_page():
     st.subheader("학번 인증")
     
     with st.form("student_auth_form"):
-        student_id = st.text_input("학번을 입력하세요 (예: 20250101)")
+        student_id = st.text_input("학번을 입력하세요 (예: 2712)")
         submitted = st.form_submit_button("인증하기")
+        student_id_int = int(student_id)
         
         if submitted:
-            # 학번 형식 검증 (6자리 또는 8자리 숫자)
-            if not student_id.isdigit() or (len(student_id) != 6 and len(student_id) != 8):
-                st.error("올바른 학번 형식이 아닙니다. 6자리 또는 8자리 숫자로 입력해주세요.")
+            # 학번 형식 검증 (4자리 숫자)
+            if not student_id.isdigit() or len(student_id) != 4:
+                st.error("올바른 학번 형식이 아닙니다.")
                 return
-                
+
             # 중복 확인
             if check_student_id(student_id):
-                st.error("이미 투표한 학번입니다. 다른 학번으로 시도해주세요.")
+                st.error("이미 투표한 학번입니다.)
                 return
+                         
+            if student_id == "****":
+                password = st.text_input("비밀번호를 입력하세요", type="password")
+
+                if password == "2345":
+            # 통계 탭 나누기
+                    tab1, tab2 = st.tabs(["학급별 모금액", "참여 학생 목록"])
+            
+                    with tab1:
+                        classes = []
+                        for grade in [1, 2]:
+                            for class_num in range(1, 9):
+                                class_name = f"{grade}-{class_num}"
+                                classes.append(class_name)
+                
+                # 각 반별 금액 계산
+                        data = []
+                        for class_name in classes:
+                            result = session.query(Gimgirl).filter(Gimgirl.name == class_name).first()
+                            if result:
+                                total = (result.ten * 5) + (result.twe * 10) + (result.tre * 20) + (result.fiv * 30) + (result.fft * 50)
+                                st.write(f"{class_name.replace('-', '학년 ')}반 총합: {total}만원")
+                                data.append({
+                                "반": class_name.replace('-', '학년 ') + '반',
+                                "5만원": result.ten,
+                                "10만원": result.twe,
+                                "20만원": result.tre,
+                                "30만원": result.fiv,
+                                "50만원": result.fft,
+                                "총액(만원)": total
+                                })
+                
+                # 데이터프레임으로 표시
+                            if data:
+                                df = pd.DataFrame(data)
+                                st.dataframe(df)
+            
+                    with tab2:
+                # 참여 학생 목록 (학번만 표시)
+                        students = session.query(StudentAuth).all()
+                        student_ids = [s.student_id for s in students]
+                        st.write(f"총 {len(student_ids)}명 참여")
+                        st.dataframe(pd.DataFrame({"학번": student_ids}))
+                
+                # 학생 목록 다운로드 버튼
+                        student_df = pd.DataFrame({"학번": student_ids})
+                        csv = student_df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="참여 학생 목록 다운로드 (CSV)",
+                            data=csv,
+                            file_name='student_participants.csv',
+                            mime='text/csv',
+                            )
+                
+                # 학생 데이터 초기화 버튼
+                        if st.button("참여 학생 데이터 초기화 (주의: 모든 기록이 삭제됩니다)"):
+                            confirm = st.text_input("확인을 위해 '초기화'를 입력하세요")
+                        if confirm == "초기화":
+                            session.query(StudentAuth).delete()
+                            session.commit()
+                            st.success("학생 참여 데이터가 초기화되었습니다.")
+                            st.experimental_rerun()
+            else:
+                st.warning("비밀번호가 틀렸습니다.")
                 
             # 인증 성공
             register_student_id(student_id)
@@ -138,70 +203,7 @@ def main_app():
                     st.session_state.student_id = ""
                     st.experimental_rerun()
                 
-    # 관리자용 페이지
-    else:
-        password = st.text_input("비밀번호를 입력하세요", type="password")
 
-        if password == "2345":
-            # 통계 탭 나누기
-            tab1, tab2 = st.tabs(["학급별 모금액", "참여 학생 목록"])
-            
-            with tab1:
-                classes = []
-                for grade in [1, 2]:
-                    for class_num in range(1, 9):
-                        class_name = f"{grade}-{class_num}"
-                        classes.append(class_name)
-                
-                # 각 반별 금액 계산
-                data = []
-                for class_name in classes:
-                    result = session.query(Gimgirl).filter(Gimgirl.name == class_name).first()
-                    if result:
-                        total = (result.ten * 5) + (result.twe * 10) + (result.tre * 20) + (result.fiv * 30) + (result.fft * 50)
-                        st.write(f"{class_name.replace('-', '학년 ')}반 총합: {total}만원")
-                        data.append({
-                            "반": class_name.replace('-', '학년 ') + '반',
-                            "5만원": result.ten,
-                            "10만원": result.twe,
-                            "20만원": result.tre,
-                            "30만원": result.fiv,
-                            "50만원": result.fft,
-                            "총액(만원)": total
-                        })
-                
-                # 데이터프레임으로 표시
-                if data:
-                    df = pd.DataFrame(data)
-                    st.dataframe(df)
-            
-            with tab2:
-                # 참여 학생 목록 (학번만 표시)
-                students = session.query(StudentAuth).all()
-                student_ids = [s.student_id for s in students]
-                st.write(f"총 {len(student_ids)}명 참여")
-                st.dataframe(pd.DataFrame({"학번": student_ids}))
-                
-                # 학생 목록 다운로드 버튼
-                student_df = pd.DataFrame({"학번": student_ids})
-                csv = student_df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="참여 학생 목록 다운로드 (CSV)",
-                    data=csv,
-                    file_name='student_participants.csv',
-                    mime='text/csv',
-                )
-                
-                # 학생 데이터 초기화 버튼
-                if st.button("참여 학생 데이터 초기화 (주의: 모든 기록이 삭제됩니다)"):
-                    confirm = st.text_input("확인을 위해 '초기화'를 입력하세요")
-                    if confirm == "초기화":
-                        session.query(StudentAuth).delete()
-                        session.commit()
-                        st.success("학생 참여 데이터가 초기화되었습니다.")
-                        st.experimental_rerun()
-        else:
-            st.warning("비밀번호가 틀렸습니다.")
 
 def main():
     # 인증 여부에 따라 다른 페이지 표시
