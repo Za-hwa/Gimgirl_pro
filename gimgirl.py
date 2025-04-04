@@ -96,7 +96,7 @@ def login_page():
 
             # 중복 확인
             if check_student_id(student_id):
-                st.error("이미 투표한 학번입니다.)
+                st.error("이미 투표한 학번입니다.")
                 return
                          
             if student_id == "****":
