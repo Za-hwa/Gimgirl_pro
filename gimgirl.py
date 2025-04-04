@@ -95,16 +95,7 @@ def login_page():
 
             # 특별 관리자 로그인
             if student_id == "****":
-                password = st.text_input("비밀번호를 입력하세요", type="password")
-                if password == "2345":
-                    # 인증 성공
-                    st.session_state.authenticated = True
-                    st.session_state.student_id = "관리자"
-                    st.success("관리자로 로그인되었습니다!")
-                    st.experimental_rerun()
-                else:
-                    st.warning("비밀번호가 틀렸습니다.")
-                return
+                admin_page()
 
             # 중복 확인
             if check_student_id(student_id):
