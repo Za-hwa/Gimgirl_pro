@@ -365,6 +365,23 @@ def admin_page():
                 finally:
                     session.close()
 
+def get_class_image(class_name):
+    """학급에 맞는 이미지 파일명을 반환합니다"""
+    # class_name은 "1-1", "2-2" 등의 형태
+    if "-" not in class_name:
+        return "fund.png"  # 기본 이미지
+    
+    # 형식에 맞게 이미지 파일명 생성 (1-1 -> 11.png, 2-2 -> 22.png)
+    grade, class_num = class_name.split("-")
+    image_name = f"{grade}{class_num}.png"
+    
+    # 이미지 파일이 존재하는지 확인
+    if os.path.exists(image_name):
+        return image_name
+    else:
+        # 없으면 기본 이미지 사용
+        return "fund.png"
+
 def student_app():
     """학생 펀딩 애플리케이션"""
     st.header("2025 김해여고 펀딩 사이트")
@@ -374,16 +391,23 @@ def student_app():
                                         "2학년 6반", "2학년 7반", "2학년 8반", "1학년 1반", "1학년 2반", 
                                         "1학년 3반", "1학년 4반", "1학년 5반", "1학년 6반", "1학년 7반", "1학년 8반"])
 
-    class_name = page.replace("학년 ", "-")
-    class_name = class_name.split("반")[0]  # "반" 텍스트 제거
+    # 학급 이름 추출 (예: "2학년 1반" -> "2-1")
+    class_name = ""
+    if "학년" in page and "반" in page:
+        grade = page.split("학년")[0].strip()
+        class_num = page.split("학년")[1].split("반")[0].strip()
+        class_name = f"{grade}-{class_num}"
         
     col1, col2, col3 = st.columns([1, 3, 1])
         
     with col2:
+        # 해당 학급에 맞는 이미지 표시
+        image_path = get_class_image(class_name)
         try:
-            st.image('fund.png')
-        except:
-            st.warning("이미지 파일 'fund.png'를 찾을 수 없습니다.")
+            st.image(image_path)
+            st.caption(f"현재 선택된 학급: {page}")
+        except Exception as e:
+            st.warning(f"이미지 파일 '{image_path}'를 표시할 수 없습니다. 오류: {str(e)}")
         
     with st.form(key=f'funding_form_{class_name}'):
         donation = st.radio("펀딩을 얼마할 지 선택해주세요", 
@@ -393,7 +417,7 @@ def student_app():
             
         if submit_button:
             if update_donation(class_name, donation):
-                st.success(f"{class_name}반에 {donation} 펀딩이 성공적으로 제출되었습니다.")
+                st.success(f"{page}에 {donation} 펀딩이 성공적으로 제출되었습니다.")
             else:
                 st.error("펀딩 제출 중 오류가 발생했습니다. 다시 시도해주세요.")
 
