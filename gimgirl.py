@@ -50,15 +50,10 @@ if 'is_admin' not in st.session_state:
 if 'valid_student_ids' not in st.session_state:
     st.session_state.valid_student_ids = []
 
-# 학급 번호와 이름 매핑
+# 학급 번호와 이름 매핑 (이제 숫자만 표시)
 def get_class_name_from_number(class_num):
-    """숫자를 학급 이름으로 변환 (1-16 -> 반 이름)"""
-    if 1 <= class_num <= 8:
-        return f"2학년 {class_num}반"
-    elif 9 <= class_num <= 16:
-        return f"1학년 {class_num-8}반"
-    else:
-        return f"학급 {class_num}"
+    """숫자만 반환"""
+    return f"{class_num}"
 
 def get_original_class_code(class_num):
     """숫자를 원래 형식인 '2-1' 형식으로 변환 (데이터베이스 호환성)"""
@@ -288,7 +283,6 @@ def admin_page():
                     total = (result.ten * 5) + (result.twe * 10) + (result.tre * 20) + (result.fiv * 30) + (result.fft * 50)
                     data.append({
                         "반 번호": class_num,
-                        "반 이름": get_class_name_from_number(class_num),
                         "5만원": result.ten,
                         "10만원": result.twe,
                         "20만원": result.tre,
@@ -304,7 +298,7 @@ def admin_page():
                 
                 # 각 반별 합계 출력
                 for item in data:
-                    st.write(f"{item['반 이름']} (반 번호: {item['반 번호']}) 총합: {item['총액(만원)']}만원")
+                    st.write(f"{item['반 번호']}: {item['총액(만원)']}만원")
         finally:
             session.close()
     
@@ -411,12 +405,12 @@ def student_app():
 
     # 1부터 16까지의 반 선택
     class_numbers = list(range(1, 17))
-    class_options = [f"{num}반 ({get_class_name_from_number(num)})" for num in class_numbers]
+    class_options = [f"{num}" for num in class_numbers]
     
-    selected_option = st.selectbox("반을 선택하세요", class_options)
+    selected_option = st.selectbox("번호를 선택하세요", class_options)
     
-    # 선택된 옵션에서 반 번호 추출 (예: "1반 (2학년 1반)" -> 1)
-    selected_class_num = int(selected_option.split('반')[0])
+    # 선택된 옵션에서 반 번호 추출 
+    selected_class_num = int(selected_option)
     
     # 원래 코드 형식 (데이터베이스와 일치)
     class_code = get_original_class_code(selected_class_num)
@@ -428,7 +422,7 @@ def student_app():
         image_path = get_class_image(selected_class_num)
         try:
             st.image(image_path)
-            st.caption(f"현재 선택된 학급: {selected_class_num}반 ({get_class_name_from_number(selected_class_num)})")
+            st.caption(f"현재 선택된 번호: {selected_class_num}")
         except Exception as e:
             st.warning(f"이미지 파일 '{image_path}'를 표시할 수 없습니다. 오류: {str(e)}")
         
@@ -440,7 +434,7 @@ def student_app():
             
         if submit_button:
             if update_donation(class_code, donation):
-                st.success(f"{selected_class_num}반 ({get_class_name_from_number(selected_class_num)})에 {donation} 펀딩이 성공적으로 제출되었습니다.")
+                st.success(f"{selected_class_num}번에 {donation} 펀딩이 성공적으로 제출되었습니다.")
             else:
                 st.error("펀딩 제출 중 오류가 발생했습니다. 다시 시도해주세요.")
 
