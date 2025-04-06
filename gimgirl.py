@@ -50,24 +50,43 @@ if 'is_admin' not in st.session_state:
 if 'valid_student_ids' not in st.session_state:
     st.session_state.valid_student_ids = []
 
+# 학급 번호와 이름 매핑
+def get_class_name_from_number(class_num):
+    """숫자를 학급 이름으로 변환 (1-16 -> 반 이름)"""
+    if 1 <= class_num <= 8:
+        return f"2학년 {class_num}반"
+    elif 9 <= class_num <= 16:
+        return f"1학년 {class_num-8}반"
+    else:
+        return f"학급 {class_num}"
+
+def get_original_class_code(class_num):
+    """숫자를 원래 형식인 '2-1' 형식으로 변환 (데이터베이스 호환성)"""
+    if 1 <= class_num <= 8:
+        return f"2-{class_num}"
+    elif 9 <= class_num <= 16:
+        return f"1-{class_num-8}"
+    else:
+        return str(class_num)
+
 def get_db_session():
     """데이터베이스 세션을 생성하고 반환합니다"""
     return Session()
 
-def update_donation(class_name, donation_amount):
+def update_donation(class_code, donation_amount):
     """금액에 따라 적절한 열을 업데이트합니다"""
     session = get_db_session()
     try:
         if donation_amount == "5만원":
-            session.query(Gimgirl).filter(Gimgirl.name == class_name).update({Gimgirl.ten: Gimgirl.ten + 1})
+            session.query(Gimgirl).filter(Gimgirl.name == class_code).update({Gimgirl.ten: Gimgirl.ten + 1})
         elif donation_amount == "10만원":
-            session.query(Gimgirl).filter(Gimgirl.name == class_name).update({Gimgirl.twe: Gimgirl.twe + 1})
+            session.query(Gimgirl).filter(Gimgirl.name == class_code).update({Gimgirl.twe: Gimgirl.twe + 1})
         elif donation_amount == "20만원":
-            session.query(Gimgirl).filter(Gimgirl.name == class_name).update({Gimgirl.tre: Gimgirl.tre + 1})
+            session.query(Gimgirl).filter(Gimgirl.name == class_code).update({Gimgirl.tre: Gimgirl.tre + 1})
         elif donation_amount == "30만원":
-            session.query(Gimgirl).filter(Gimgirl.name == class_name).update({Gimgirl.fiv: Gimgirl.fiv + 1})
+            session.query(Gimgirl).filter(Gimgirl.name == class_code).update({Gimgirl.fiv: Gimgirl.fiv + 1})
         elif donation_amount == "50만원":
-            session.query(Gimgirl).filter(Gimgirl.name == class_name).update({Gimgirl.fft: Gimgirl.fft + 1})
+            session.query(Gimgirl).filter(Gimgirl.name == class_code).update({Gimgirl.fft: Gimgirl.fft + 1})
         session.commit()
         return True
     except Exception as e:
@@ -116,9 +135,10 @@ def initialize_data():
     try:
         if session.query(Gimgirl).count() == 0:
             classes = []
-            for grade in [1, 2]:
-                for class_num in range(1, 9):
-                    classes.append(Gimgirl(name=f"{grade}-{class_num}", ten=0, twe=0, tre=0, fiv=0, fft=0))
+            # 2학년 1-8반은 1-8번, 1학년 1-8반은 9-16번으로 변환하여 저장
+            for i in range(1, 17):
+                class_code = get_original_class_code(i)
+                classes.append(Gimgirl(name=class_code, ten=0, twe=0, tre=0, fiv=0, fft=0))
             
             session.add_all(classes)
             session.commit()
@@ -215,6 +235,14 @@ def login_page():
                 else:
                     st.error("비밀번호가 올바르지 않습니다.")
                 return
+                
+            # 특별 테스트용 학번 (99999) - 중복 투표 허용
+            if student_id == "99999":
+                st.session_state.authenticated = True
+                st.session_state.student_id = "테스트유저"
+                st.success("테스트 모드로 인증되었습니다!")
+                st.rerun()
+                return
             
             # 학번 형식 검증 (4자리 숫자)
             if not student_id.isdigit() or len(student_id) != 4:
@@ -246,22 +274,21 @@ def admin_page():
     tab1, tab2, tab3 = st.tabs(["학급별 모금액", "참여 학생 목록", "학번 관리"])
     
     with tab1:
-        classes = []
-        for grade in [1, 2]:
-            for class_num in range(1, 9):
-                class_name = f"{grade}-{class_num}"
-                classes.append(class_name)
+        # 1~16까지의 학급 번호
+        class_numbers = list(range(1, 17))
         
         # 각 반별 금액 계산
         session = get_db_session()
         try:
             data = []
-            for class_name in classes:
-                result = session.query(Gimgirl).filter(Gimgirl.name == class_name).first()
+            for class_num in class_numbers:
+                class_code = get_original_class_code(class_num)
+                result = session.query(Gimgirl).filter(Gimgirl.name == class_code).first()
                 if result:
                     total = (result.ten * 5) + (result.twe * 10) + (result.tre * 20) + (result.fiv * 30) + (result.fft * 50)
                     data.append({
-                        "반": class_name.replace('-', '학년 ') + '반',
+                        "반 번호": class_num,
+                        "반 이름": get_class_name_from_number(class_num),
                         "5만원": result.ten,
                         "10만원": result.twe,
                         "20만원": result.tre,
@@ -277,7 +304,7 @@ def admin_page():
                 
                 # 각 반별 합계 출력
                 for item in data:
-                    st.write(f"{item['반']} 총합: {item['총액(만원)']}만원")
+                    st.write(f"{item['반 이름']} (반 번호: {item['반 번호']}) 총합: {item['총액(만원)']}만원")
         finally:
             session.close()
     
@@ -365,15 +392,10 @@ def admin_page():
                 finally:
                     session.close()
 
-def get_class_image(class_name):
-    """학급에 맞는 이미지 파일명을 반환합니다"""
-    # class_name은 "1-1", "2-2" 등의 형태
-    if "-" not in class_name:
-        return "fund.png"  # 기본 이미지
-    
-    # 형식에 맞게 이미지 파일명 생성 (1-1 -> 11.png, 2-2 -> 22.png)
-    grade, class_num = class_name.split("-")
-    image_name = f"{grade}{class_num}.png"
+def get_class_image(class_num):
+    """학급 번호에 맞는 이미지 파일명을 반환합니다"""
+    # class_num은 1부터 16까지의 정수
+    image_name = f"{class_num}.png"
     
     # 이미지 파일이 존재하는지 확인
     if os.path.exists(image_name):
@@ -387,37 +409,38 @@ def student_app():
     st.header("2025 김해여고 펀딩 사이트")
     st.write(f"학번: {st.session_state.student_id}")
 
-    page = st.selectbox("페이지를 선택하세요", ["2학년 1반", "2학년 2반", "2학년 3반", "2학년 4반", "2학년 5반", 
-                                        "2학년 6반", "2학년 7반", "2학년 8반", "1학년 1반", "1학년 2반", 
-                                        "1학년 3반", "1학년 4반", "1학년 5반", "1학년 6반", "1학년 7반", "1학년 8반"])
-
-    # 학급 이름 추출 (예: "2학년 1반" -> "2-1")
-    class_name = ""
-    if "학년" in page and "반" in page:
-        grade = page.split("학년")[0].strip()
-        class_num = page.split("학년")[1].split("반")[0].strip()
-        class_name = f"{grade}-{class_num}"
+    # 1부터 16까지의 반 선택
+    class_numbers = list(range(1, 17))
+    class_options = [f"{num}반 ({get_class_name_from_number(num)})" for num in class_numbers]
+    
+    selected_option = st.selectbox("반을 선택하세요", class_options)
+    
+    # 선택된 옵션에서 반 번호 추출 (예: "1반 (2학년 1반)" -> 1)
+    selected_class_num = int(selected_option.split('반')[0])
+    
+    # 원래 코드 형식 (데이터베이스와 일치)
+    class_code = get_original_class_code(selected_class_num)
         
     col1, col2, col3 = st.columns([1, 3, 1])
         
     with col2:
         # 해당 학급에 맞는 이미지 표시
-        image_path = get_class_image(class_name)
+        image_path = get_class_image(selected_class_num)
         try:
             st.image(image_path)
-            st.caption(f"현재 선택된 학급: {page}")
+            st.caption(f"현재 선택된 학급: {selected_class_num}반 ({get_class_name_from_number(selected_class_num)})")
         except Exception as e:
             st.warning(f"이미지 파일 '{image_path}'를 표시할 수 없습니다. 오류: {str(e)}")
         
-    with st.form(key=f'funding_form_{class_name}'):
+    with st.form(key=f'funding_form_{selected_class_num}'):
         donation = st.radio("펀딩을 얼마할 지 선택해주세요", 
                             ["5만원", "10만원", "20만원", "30만원", "50만원"], 
                             index=1)  # 기본값 10만원
         submit_button = st.form_submit_button(label="제출하기")
             
         if submit_button:
-            if update_donation(class_name, donation):
-                st.success(f"{page}에 {donation} 펀딩이 성공적으로 제출되었습니다.")
+            if update_donation(class_code, donation):
+                st.success(f"{selected_class_num}반 ({get_class_name_from_number(selected_class_num)})에 {donation} 펀딩이 성공적으로 제출되었습니다.")
             else:
                 st.error("펀딩 제출 중 오류가 발생했습니다. 다시 시도해주세요.")
 
